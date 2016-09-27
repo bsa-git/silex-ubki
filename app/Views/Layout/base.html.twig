@@ -1,0 +1,61 @@
+{# app/Views/Layout/base.html.twig #}
+<!DOCTYPE html>
+<html>
+    <head>
+        {% block head %}
+            <meta charset="{{ _charset }}">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">{# edge, 7,8,9,10 #}
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <link rel="shortcut icon" href="{{ asset('img/assets/ico/favicon.ico') }}">
+            <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+            <title>{% block title %}{% endblock %}</title>
+
+            <!-- Bootstrap -->
+            <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+
+            <!-- Awesome fonts -->
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel='stylesheet' type='text/css'>
+            
+            <!-- Google fonts -->
+            <link href='http://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
+            <link href='http://fonts.googleapis.com/css?family=Playball' rel='stylesheet' type='text/css'>
+
+            <!-- jQuery -->
+            <script type="text/javascript" src="{{ asset('js/lib/jquery/jquery.min.js') }}"></script>
+            <!-- bootstrap -->
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+            
+            <!-- Require -->
+            <script type="text/javascript" data-main="{{ asset('js/main') }}" src="{{ asset('js/lib/requirejs/require.js') }}"></script>
+            <!--[if IE]>
+                <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+            <![endif]-->
+        {% endblock head %}
+    </head>
+    <body>
+        <!-- Common Data -->
+        {% include 'Include/common.html.twig' %}
+        <!-- Fixed NavBar -->
+        {% include 'Include/navbar.html.twig' %}
+        <div id="content" class="container">
+            <!-- Header -->
+            {% include 'Include/header.html.twig' %}
+            <!-- Page Header -->
+            <div class="page-header"><h1>{% block page_name %}{% endblock page_name %}</h1></div>
+            <!-- Message Box -->
+            {% include 'Include/msgbox.html.twig' %}
+            <!-- Page Content -->
+            <div id="page_content">{% block content %}{% endblock content %}</div>
+            <!-- Footer Menu -->
+            {% include 'Include/footer.menu.html.twig' %}
+            <!-- Footer Privacy -->
+            {% include 'Include/footer.privacy.html.twig' %}
+        </div>
+        <!-- /container -->
+
+        <!-- scheme -->
+        <link href="{{ asset(['schemes/', app.scheme, '/css/style.css']|join) }}" rel="stylesheet" media="screen">
+        <!-- Include MyStyle -->
+        <link rel="stylesheet" href="{{ asset('css/mystyle.css') }}" />
+    </body>
+</html>

@@ -1,0 +1,15 @@
+<div class="row header">
+    <div class="header-logo col-md-4">
+        <a href="http://symfony.com/">
+            <img src="{{ asset('/img/assets/symfony/header-logo.svg') }}" alt="Symfony" class="img-responsive">
+        </a>
+    </div>
+    <div class="log-in-out col-md-2" style="margin-top: 23px;">
+        {% if app.user and is_granted('IS_AUTHENTICATED_FULLY') %}
+            <a href="{{ path('logout') }}">{{ 'logout'|trans|capitalize }} </a>({{ app.user.username }})
+        {% else %}
+            <a href="{{ path('login') }}">{{ 'login'|trans|capitalize }}</a> /
+            <a href="{{ path('registration') }}">{{ 'registration'|trans|capitalize }}</a>
+        {% endif %}
+    </div>
+</div>

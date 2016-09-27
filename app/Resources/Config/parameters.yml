@@ -1,0 +1,52 @@
+parameters:
+    log_level:  DEBUG
+    timezone: UTC
+    locale: en
+    #--- schemes: "black-white-gray", "black-white-green" ---
+    scheme: "black-white-gray"
+    #--- Debug: true, false ---
+    debug: false
+    #--- Environment: production, test, development ---
+    environment: production 
+    #--- Directory data for console ---
+    data_dir:  "c:/tmp"
+    #--- HOST url for local testing ---
+    url_test: "http://silex-ubki/"
+    #--- UBKI parameters ---
+    ubki_login: "ubkiuser"
+    ubki_pass: "ubkipass"
+    ubki_test_login: "ubkiuser_test"
+    ubki_test_pass: "ubkipass_test"
+    #--- Database parameters ---
+    db.driver: pdo_sqlite
+    db.path: "/app/Resources/db/app.db"
+    db.name: app
+    db.models.path: "/app/Models/AR"
+    db.models.namespace: "Models\AR"
+    db.connection.production: "sqlite://../app/Resources/db/app.db"
+    db.connection.development: "sqlite://../app/Resources/db/app.db"
+    db.connection.test: "sqlite://../app/Resources/db/app.db"
+    #--- Developer mail ---
+    developer_mail: "dev@mail.com"
+    #--- Email parameters ---
+    mail.host: mail.host.local
+    mail.port: 25
+    mail.username: username-mail
+    mail.password: password-mail
+    # ('tls', 'ssl', or null)
+    mail.encryption: null
+    # ('plain', 'login', 'cram-md5', or null)
+    mail.auth_mode: null
+    # Disabling Sending
+    mail.disable_delivery:  true
+    #--- PagerFanta ---
+    pagerfanta.max_per_page: 2
+    pagerfanta.proximity: 3
+
+controllers:
+    Controller.Index: Controllers\IndexController
+    Controller.Security: Controllers\SecurityController
+    Controller.Test: Controllers\TestController
+    Controller.Ubki: Controllers\UbkiController    
+    
+    
