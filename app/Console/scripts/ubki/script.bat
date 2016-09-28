@@ -1,1 +1,1 @@
-php.exe ../../index.php %1 %2 %3
+../../php/php.exe ../../index.php %1 %2 %3
