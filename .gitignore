@@ -50,4 +50,5 @@ Temporary Items
 /app/Resources/db/*
 /nbproject/*
 /vendor/*
+/php/*
 env.yml
