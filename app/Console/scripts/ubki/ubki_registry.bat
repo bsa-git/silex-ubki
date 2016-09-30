@@ -1,3 +1,3 @@
-../../php/php.exe ../../index.php ubki:index -t=registry
+c:/silex-ubki/php/php.exe ../../index.php ubki:index -t=registry
 
 TIMEOUT /T 30

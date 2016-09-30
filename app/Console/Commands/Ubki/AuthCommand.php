@@ -39,6 +39,7 @@ class AuthCommand extends \Console\Commands\BaseCommand {
     protected function execute(InputInterface $input, OutputInterface $output) {
         $models = $this->app['models'];
         $http = $this->app["my"]->get('http');
+        $parameters = $this->app['config']['parameters'];
         $results = array();
         //----------------
 
@@ -46,22 +47,21 @@ class AuthCommand extends \Console\Commands\BaseCommand {
             // Initialization
             $this->init($input);
 
-            // Get the test url
-            $url_test = $login = $this->app['config']['parameters']['url_test'];
-
             if ($this->opts['environment'] == 'production') {
-                if ($this->app['debug']) {
+                if ($this->app['debug']) {// test url
                     $url = "https://secure.ubki.ua:4040/b2_api_xml/ubki/auth";
                     $path = "/b2_api_xml/ubki/auth";
-                } else {
+                } else {// live url
                     $url = "https://secure.ubki.ua:443/b2_api_xml/ubki/auth";
                     $path = "/b2_api_xml/ubki/auth";
                 }
             } else {
-                if ($this->app['debug']) {
+                // Get the test url
+                $url_test = $parameters['url_test'];
+                if ($this->app['debug']) {// for server debug
                     $url = "{$url_test}/ubki/auth?XDEBUG_SESSION_START=netbeans-xdebug";
                     $path = "/ubki/auth";
-                } else {
+                } else {// for console debug
                     $url = "{$url_test}/ubki/auth";
                     $path = "/ubki/auth";
                 }
@@ -74,9 +74,11 @@ class AuthCommand extends \Console\Commands\BaseCommand {
 
             // Set options
             $options = array(
-                CURLOPT_USERAGENT => ''
+//                CURLOPT_VERBOSE => $this->app['debug'], // TRUE To display more information.
+                CURLOPT_PROXY => $parameters['proxy'] ? "{$parameters['proxy.host']}:{$parameters['proxy.port']}" : '',
+                CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
             );
-            
+
             // Send post request
             $http->setData($xmlAuth);
             $response = $http->post($url, $options);

@@ -42,6 +42,7 @@ class RegistryCommand extends \Console\Commands\BaseCommand {
         $models = $this->app['models'];
         $http = $this->app["my"]->get('http');
         $strBox = $this->app['my']->get('string');
+        $parameters = $this->app['config']['parameters'];
         $results = array();
         //-----------------
 
@@ -50,8 +51,6 @@ class RegistryCommand extends \Console\Commands\BaseCommand {
             // Initialization
             $this->init($input);
 
-            // Get test url
-            $url_test = $login = $this->app['config']['parameters']['url_test'];
             // Get url
             if ($this->opts['environment'] == 'production') {
                 if ($this->app['debug']) {
@@ -62,6 +61,8 @@ class RegistryCommand extends \Console\Commands\BaseCommand {
                     $path = "/upload/in/reestrs.php";
                 }
             } else {
+                // Get test url
+                $url_test = $parameters['url_test'];
                 if ($this->app['debug']) {
                     $url = "{$url_test}/ubki/registry?XDEBUG_SESSION_START=netbeans-xdebug";
                     $path = "/ubki/registry";
@@ -86,7 +87,9 @@ class RegistryCommand extends \Console\Commands\BaseCommand {
                     "Content-type: text/xml;charset=\"utf-8\"",
                     "Accept: text/xml",
                     "Content-length: " . strlen($xmlRegistry),
-                )
+                ),
+                CURLOPT_PROXY => $parameters['proxy']? "{$parameters['proxy.host']}:{$parameters['proxy.port']}":'',
+                CURLOPT_PROXYUSERPWD => $parameters['proxy']? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}":'',
             );
             
             // Create HttpBox object

@@ -40,6 +40,7 @@ class InfoCommand extends \Console\Commands\BaseCommand {
     protected function execute(InputInterface $input, OutputInterface $output) {
         $models = $this->app['models'];
         $http = $this->app["my"]->get('http');
+        $parameters = $this->app['config']['parameters'];
         $results = array();
         //-----------------
 
@@ -47,9 +48,6 @@ class InfoCommand extends \Console\Commands\BaseCommand {
 
             // Initialization
             $this->init($input);
-
-            // Get test url
-            $url_test = $login = $this->app['config']['parameters']['url_test'];
 
             if ($this->opts['environment'] == 'production') {
                 if ($this->app['debug']) {
@@ -60,6 +58,8 @@ class InfoCommand extends \Console\Commands\BaseCommand {
                     $path = "/b2_api_xml/ubki/xml";
                 }
             } else {
+                // Get test url
+                $url_test = $parameters['url_test'];
                 if ($this->app['debug']) {
                     $url = "{$url_test}/ubki/info?XDEBUG_SESSION_START=netbeans-xdebug";
                     $path = "/ubki/info";
@@ -82,7 +82,9 @@ class InfoCommand extends \Console\Commands\BaseCommand {
                     "Content-type: text/xml;charset=\"utf-8\"",
                     "Accept: text/xml",
                     "Content-length: " . strlen($xmlInfo),
-                )
+                ),
+                CURLOPT_PROXY => $parameters['proxy']? "{$parameters['proxy.host']}:{$parameters['proxy.port']}":'',
+                CURLOPT_PROXYUSERPWD => $parameters['proxy']? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}":'',
             );
             
             // Create HttpBox object
