@@ -19,7 +19,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class RegistryCommand extends \Console\Commands\BaseCommand {
 
-    
     /**
      * Configures command
      *
@@ -44,6 +43,7 @@ class RegistryCommand extends \Console\Commands\BaseCommand {
         $strBox = $this->app['my']->get('string');
         $parameters = $this->app['config']['parameters'];
         $results = array();
+        $options_ = array();
         //-----------------
 
         try {
@@ -60,6 +60,11 @@ class RegistryCommand extends \Console\Commands\BaseCommand {
                     $url = "https://secure.ubki.ua/upload/in/reestrs.php";
                     $path = "/upload/in/reestrs.php";
                 }
+                // Set options
+                $options_ = array(
+                    CURLOPT_PROXY => $parameters['proxy'] ? "{$parameters['proxy.host']}:{$parameters['proxy.port']}" : '',
+                    CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
+                );
             } else {
                 // Get test url
                 $url_test = $parameters['url_test'];
@@ -79,7 +84,7 @@ class RegistryCommand extends \Console\Commands\BaseCommand {
             $data['sessid'] = $idSess;
             $data += $this->params;
             $xmlRegistry = $models->load('Ubki', 'getReqGetRegistry', $data);
-            
+
             // Set http options
             $options = array(
                 CURLOPT_HTTPHEADER => Array(
@@ -87,11 +92,9 @@ class RegistryCommand extends \Console\Commands\BaseCommand {
                     "Content-type: text/xml;charset=\"utf-8\"",
                     "Accept: text/xml",
                     "Content-length: " . strlen($xmlRegistry),
-                ),
-                CURLOPT_PROXY => $parameters['proxy']? "{$parameters['proxy.host']}:{$parameters['proxy.port']}":'',
-                CURLOPT_PROXYUSERPWD => $parameters['proxy']? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}":'',
-            );
-            
+                )
+                    ) + $options_;
+
             // Create HttpBox object
             $http->setData($xmlRegistry);
             // Send post request
@@ -124,8 +127,6 @@ class RegistryCommand extends \Console\Commands\BaseCommand {
 
             // Show results
             $output->writeln($this->showResults($results));
-
-
         } catch (\Exception $exc) {
             $this->showError($exc, $input, $output);
         }

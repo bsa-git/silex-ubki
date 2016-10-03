@@ -42,6 +42,7 @@ class DataCommand extends \Console\Commands\BaseCommand {
         $http = $this->app["my"]->get('http');
         $parameters = $this->app['config']['parameters'];
         $results = array();
+        $options_ = array();
         //-----------------
 
         try {
@@ -57,6 +58,11 @@ class DataCommand extends \Console\Commands\BaseCommand {
                     $url = "https://secure.ubki.ua/upload/data/xml";
                     $path = "/upload/data/xml";
                 }
+                // Set options
+                $options_ = array(
+                    CURLOPT_PROXY => $parameters['proxy'] ? "{$parameters['proxy.host']}:{$parameters['proxy.port']}" : '',
+                    CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
+                );
             } else {
                 // Get test url
                 $url_test = $parameters['url_test'];
@@ -84,10 +90,8 @@ class DataCommand extends \Console\Commands\BaseCommand {
                     "Accept: text/xml",
                     "Content­Encoding: gzip",
                     "Content-length: " . strlen($xmlData),
-                ),
-                CURLOPT_PROXY => $parameters['proxy']? "{$parameters['proxy.host']}:{$parameters['proxy.port']}":'',
-                CURLOPT_PROXYUSERPWD => $parameters['proxy']? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}":'',
-            );
+                )
+            ) + $options_;
             
             // Create HttpBox object
             $http->setData($xmlData);

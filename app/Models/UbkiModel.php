@@ -15,8 +15,6 @@ namespace Models;
  * @link     https://github.com/bsa-git/silex-mvc/
  */
 class UbkiModel extends BaseModel {
-
-
     //============ SESS IDS ==========
 
     /**
@@ -31,7 +29,7 @@ class UbkiModel extends BaseModel {
         $config = $this->app["my"]->get('config');
         //-------------------
         // Get file path with "sessid"
-        $path = $config->getProjectPath("download_srv");
+        $path = $config->getProjectPath("download_srv") . '/auth';
         $files = $sysBox->getNameFilesSortDesc($path, "sessid_");
         if (count($files)) {// sessid_20150524.txt
             // Check the relevance of the "sessid"
@@ -60,7 +58,10 @@ class UbkiModel extends BaseModel {
     private function _setSessId($sessid) {
         $config = $this->app["my"]->get('config');
         //-------------------
-        $path = $config->getProjectPath("download_srv");
+        $path = $config->getProjectPath("download_srv") . '/auth';
+        if (!is_dir($path)) {
+            mkdir($path);
+        }
         $date_now = date("Ymd");
         $filePath = $path . "/sessid_{$date_now}.txt";
         file_put_contents($filePath, $sessid, LOCK_EX);
@@ -140,14 +141,16 @@ class UbkiModel extends BaseModel {
         }
 
         // Get XML request
+        $fileViewsRequest = $config->getProjectPath('views') . "/ubki/lib/info/reqGetInfo.xml";
+        $fileUploadRequest = $config->getProjectPath('upload') . "/upload.xml";
         if ($opts['environment'] == 'production') {
             if ($this->app['debug']) {
-                $file = $config->getProjectPath('views') . "/ubki/lib/info/reqGetInfo.xml";
+                $file = is_file($fileUploadRequest) ? $fileUploadRequest : $fileViewsRequest;
             } else {
-                $file = $config->getProjectPath('upload') . "/upload.xml";
+                $file = $fileUploadRequest;
             }
         } else {
-            $file = $config->getProjectPath('views') . "/ubki/lib/info/reqGetInfo.xml";
+            $file = $fileViewsRequest;
         }
 
         if (!is_file($file)) {
@@ -169,6 +172,11 @@ class UbkiModel extends BaseModel {
             $this->app->abort(406, "Error type of request - '{$file}'");
         }
 
+        // Set "sessid"
+        $my_sessid = (string) $crXml->doc->ubki['sessid'];
+        if (!$my_sessid) {
+            $crXml->doc->ubki['sessid'] = $sessid;
+        }
 
         // Encode the query using "base64_encode"
         $arrRequest = $crXml->search("request", FALSE);
@@ -176,19 +184,13 @@ class UbkiModel extends BaseModel {
         $nodeEncode = base64_encode($nodeContent);
         // Set a coded request
         $crXml->doc->ubki->req_envelope->req_xml = (string) $nodeEncode;
-        // Set "sessid"
-        $my_sessid = (string) $crXml->doc->ubki['sessid'];
-        if (!$my_sessid) {
-            $crXml->doc->ubki['sessid'] = $sessid;
-        }
 
+        // Get real XML
         $xml = $crXml->xml();
-
-        if ($this->app['debug']) {
-            $file = $config->getProjectPath('upload') . "/request.xml";
-
-            $sysBox->saveLog($xml, $file, '');
-        }
+        
+        // Save XML to request.xml
+        $file = $config->getProjectPath('upload') . "/request.xml";
+        $sysBox->saveData($xml, $file);
 
         return $xml;
     }
@@ -204,6 +206,7 @@ class UbkiModel extends BaseModel {
         $crXml = $this->app["my"]->get('xml');
         $config = $this->app["my"]->get('config');
         $strBox = $this->app['my']->get('string');
+        $sysBox = $this->app['my']->get('system');
         $opts = $this->app['my.opts'];
         //-------------------
 
@@ -214,14 +217,16 @@ class UbkiModel extends BaseModel {
         }
 
         // Get XML for send data
+        $fileViewsRequest = $config->getProjectPath('views') . "/ubki/lib/data/reqSendData.xml";
+        $fileUploadRequest = $config->getProjectPath('upload') . "/upload.xml";
         if ($opts['environment'] == 'production') {
             if ($this->app['debug']) {
-                $file = $config->getProjectPath('views') . "/ubki/lib/data/reqSendData.xml";
+                $file = is_file($fileUploadRequest) ? $fileUploadRequest : $fileViewsRequest;
             } else {
-                $file = $config->getProjectPath('upload') . "/upload.xml";
+                $file = $fileUploadRequest;
             }
         } else {
-            $file = $config->getProjectPath('views') . "/ubki/lib/data/reqSendData.xml";
+            $file = $fileViewsRequest;
         }
 
         if (!is_file($file)) {
@@ -247,6 +252,12 @@ class UbkiModel extends BaseModel {
         $crXml->doc->ubki['sessid'] = $sessid;
 
         $xml = $crXml->xml();
+
+        // Save XML to request.xml
+        $file = $config->getProjectPath('upload') . "/request.xml";
+        $sysBox->saveData($xml, $file);
+
+
         // Encode and pack string
         $gzdata = $strBox->set($xml)->base64Encode()->gzPack()->get();
 
@@ -264,6 +275,7 @@ class UbkiModel extends BaseModel {
         $crXml = $this->app["my"]->get('xml');
         $config = $this->app["my"]->get('config');
         $strBox = $this->app['my']->get('string');
+        $sysBox = $this->app['my']->get('system');
         $opts = $this->app['my.opts'];
         //-------------------
 
@@ -274,16 +286,17 @@ class UbkiModel extends BaseModel {
         }
 
         // Get XML for get registry
+        $fileViewsRequest = $config->getProjectPath('views') . "/ubki/lib/registry/reqGetRegistry.xml";
+        $fileUploadRequest = $config->getProjectPath('upload') . "/upload.xml";
         if ($opts['environment'] == 'production') {
             if ($this->app['debug']) {
-                $file = $config->getProjectPath('views') . "/ubki/lib/registry/reqGetRegistry.xml";
+                $file = is_file($fileUploadRequest) ? $fileUploadRequest : $fileViewsRequest;
             } else {
                 if (isset($data['todo'])) {
-                    $file = $config->getProjectPath('views') . "/ubki/lib/registry/reqGetRegistry.xml";
-                }else{
-                    $file = $config->getProjectPath('upload') . "/upload.xml";
+                    $file = $fileViewsRequest;
+                } else {
+                    $file = $fileUploadRequest;
                 }
-                
             }
         } else {
             $file = $config->getProjectPath('views') . "/ubki/lib/registry/reqGetRegistry.xml";
@@ -333,6 +346,11 @@ class UbkiModel extends BaseModel {
 
         // Get XML
         $xml = $crXml->xml();
+
+        // Save XML to request.xml
+        $file = $config->getProjectPath('upload') . "/request.xml";
+        $sysBox->saveData($xml, $file);
+
         // Encode string
         $encode = $strBox->set($xml)->base64Encode()->get();
 
@@ -532,7 +550,10 @@ class UbkiModel extends BaseModel {
     private function _setResForAuth($res) {
         $config = $this->app["my"]->get('config');
         //---------------------
-        $path = $config->getProjectPath("download_srv");
+        $path = $config->getProjectPath("download_srv") . '/auth';
+        if (!is_dir($path)) {
+            mkdir($path);
+        }
         $date_now = date("Ymd");
         $filePath = $path . "/resAuth_{$date_now}.xml";
         file_put_contents($filePath, $res, LOCK_EX);
@@ -547,8 +568,12 @@ class UbkiModel extends BaseModel {
      */
     private function _setResForInfo($res, $isError = false) {
         $config = $this->app["my"]->get('config');
+        $sysBox = $this->app["my"]->get('system');
         //---------------------
         $path = $config->getProjectPath("download");
+        if(!is_dir($path)){
+            $sysBox->makeDir($path);
+        }
         if ($isError) {
             $filePath = $path . "/response_err.xml";
         } else {
@@ -567,8 +592,12 @@ class UbkiModel extends BaseModel {
      */
     private function _setResSendData($res, $isError = NULL) {
         $config = $this->app["my"]->get('config');
+        $sysBox = $this->app["my"]->get('system');
         //---------------------
         $path = $config->getProjectPath("download");
+        if(!is_dir($path)){
+            $sysBox->makeDir($path);
+        }
         if ($isError === NULL) {
             $filePath = $path . "/response.xml";
             file_put_contents($filePath, $res, LOCK_EX);
@@ -593,8 +622,12 @@ class UbkiModel extends BaseModel {
      */
     private function _setResGetRegistry($res, $isError = false) {
         $config = $this->app["my"]->get('config');
+        $sysBox = $this->app["my"]->get('system');
         //---------------------
         $path = $config->getProjectPath("download");
+        if(!is_dir($path)){
+            $sysBox->makeDir($path);
+        }
         if ($isError) {
             $filePath = $path . "/response_err.xml";
         } else {

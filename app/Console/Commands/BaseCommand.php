@@ -157,7 +157,9 @@ class BaseCommand extends ConsoleCommand {
 
         // Create data dir
         $data_dir = $params["opts"]["data_dir"];
-        $this->app['my']->get('system')->createDataDir($data_dir);
+        if(!is_dir($data_dir)){
+            $this->app['my']->get('system')->makeDir($data_dir);
+        }
     }
 
     /**
@@ -396,6 +398,9 @@ class BaseCommand extends ConsoleCommand {
         $content = htmlspecialchars_decode($content, ENT_QUOTES);
         // Save results to file
         $dir = $config->getProjectPath("download");
+        if(!is_dir($dir)){
+            $sysBox->makeDir($dir);
+        }
         $filePath = $dir . "/result.txt";
         file_put_contents($filePath, $content, LOCK_EX); //FILE_APPEND | LOCK_EX
     }

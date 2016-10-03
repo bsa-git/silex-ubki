@@ -24,7 +24,7 @@ class Config {
      * @var Application
      */
     private $app;
-    
+
     /**
      * Application paths
      * 
@@ -38,8 +38,8 @@ class Config {
         "logs" => "/data/logs",
         "temp" => "/data/temp",
         "db" => "/app/Resources/db",
-        );
-    
+    );
+
     //---------------------------
     /**
      * Constructor
@@ -48,9 +48,7 @@ class Config {
      */
     public function __construct(Application $app) {// , $env = 
         $this->app = $app;
-
     }
-
 
     /**
      *  Get config params
@@ -60,7 +58,7 @@ class Config {
     public function getParams() {
         return $this->app['config']['parameters'];
     }
-    
+
     /**
      *  Get config param
      * 
@@ -68,12 +66,12 @@ class Config {
      * @return array
      */
     public function getParam($key) {
-        if(isset($this->app['config']['parameters'][$key])){
+        if (isset($this->app['config']['parameters'][$key])) {
             return $this->app['config']['parameters'][$key];
         }
         return NULL;
     }
-    
+
     /**
      *  Get the path to the main project working directory
      * 
@@ -86,7 +84,6 @@ class Config {
         $opts = $this->app['my.opts'];
         $params = $this->app['my.params'];
         //-------------------------
-        
         // Get data dir (e.g. с:/mydir/)
         if (isset($this->app['my.opts']['data_dir'])) {
             $data_dir = $this->app['my.opts']['data_dir'];
@@ -113,9 +110,9 @@ class Config {
                 $patch = $rootDocument . "/app/Models";
                 break;
             case "views":
-                if($this->app['is_console']){
+                if ($this->app['is_console']) {
                     $patch = $rootDocument . "/app/Console/Views";
-                }else{
+                } else {
                     $patch = $rootDocument . "/app/Views";
                 }
                 break;
@@ -131,7 +128,7 @@ class Config {
                 break;
             case "download_srv":
                 $patch = $rootDocument . "/data/download";
-                break;        
+                break;
             case "upload":
                 if ($newDir) {
                     $patch = $newDir;
@@ -152,7 +149,7 @@ class Config {
         }
         return $patch;
     }
-    
+
     /**
      *  Create application paths
      * 
@@ -163,13 +160,14 @@ class Config {
         $rootDocument = $this->app['basepath'];
         foreach ($this->arrAppPaths as $key => $path) {
             $strPath = $rootDocument . $path;
-            if(!is_dir($strPath)){
+            $strPath = str_replace('\\', '/', $strPath);
+            if (!is_dir($strPath)) {
                 $trimPath = trim($path, "/");
                 $arrPath = explode('/', $trimPath);
                 $strPath = $rootDocument;
                 foreach ($arrPath as $itemPath) {
                     $strPath .= "/{$itemPath}";
-                    if(!is_dir($strPath) && !mkdir($strPath, $mode)){
+                    if (!is_dir($strPath) && !mkdir($strPath, $mode)) {
                         $this->app->abort(406, "Failed to create a directory '{$strPath}' ...");
                     }
                 }

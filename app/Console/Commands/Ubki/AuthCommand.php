@@ -41,6 +41,7 @@ class AuthCommand extends \Console\Commands\BaseCommand {
         $http = $this->app["my"]->get('http');
         $parameters = $this->app['config']['parameters'];
         $results = array();
+        $options_ = array();
         //----------------
 
         try {
@@ -55,6 +56,11 @@ class AuthCommand extends \Console\Commands\BaseCommand {
                     $url = "https://secure.ubki.ua:443/b2_api_xml/ubki/auth";
                     $path = "/b2_api_xml/ubki/auth";
                 }
+                // Set options
+                $options_ = array(
+                    CURLOPT_PROXY => $parameters['proxy'] ? "{$parameters['proxy.host']}:{$parameters['proxy.port']}" : '',
+                    CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
+                );
             } else {
                 // Get the test url
                 $url_test = $parameters['url_test'];
@@ -66,18 +72,14 @@ class AuthCommand extends \Console\Commands\BaseCommand {
                     $path = "/ubki/auth";
                 }
             }
+            
+            // Set options
+            $options = array() + $options_;
 
             // Get XML request
             $data = array();
             $data['env'] = $this->app['my.opts']['environment'];
             $xmlAuth = $models->load('Ubki', 'getReqForAuth', $data);
-
-            // Set options
-            $options = array(
-//                CURLOPT_VERBOSE => $this->app['debug'], // TRUE To display more information.
-                CURLOPT_PROXY => $parameters['proxy'] ? "{$parameters['proxy.host']}:{$parameters['proxy.port']}" : '',
-                CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
-            );
 
             // Send post request
             $http->setData($xmlAuth);

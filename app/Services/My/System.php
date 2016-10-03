@@ -6,7 +6,6 @@ namespace Services\My;
 
 use Silex\Application;
 
-
 /**
  * Class - System
  * Running system tasks
@@ -38,7 +37,7 @@ class System {
     }
 
     //========= PRINT FUNC ==========
-    
+
     /**
      * Prints human-readable information about a variable
      * @param mixed $source
@@ -48,25 +47,24 @@ class System {
     public function printR($source, $return = TRUE) {
         $result = '';
         //-----------------
-        if($return){
+        if ($return) {
             $result = '<pre>';
-        }else{
+        } else {
             echo '<pre>';
         }
-        if($return){
+        if ($return) {
             $result .= print_r($source, TRUE);
-        }else{
+        } else {
             print_r($source);
         }
-        if($return){
-            $result .= '</pre>'.'<br>';
+        if ($return) {
+            $result .= '</pre>' . '<br>';
             return $result;
-        }else{
+        } else {
             echo '</pre>';
         }
     }
-    
-    
+
     /**
      * Outputs or returns a parsable string representation of a variable
      * @param mixed $source
@@ -76,13 +74,13 @@ class System {
     public function varExport($source, $return = TRUE) {
         $result = '';
         //-----------------
-        if($return){
+        if ($return) {
             return var_export($source, TRUE);
-        }else{
+        } else {
             var_export($source);
         }
     }
-    
+
     //========= ARRAY FUNC ==========
 
     /**
@@ -169,28 +167,32 @@ class System {
     }
 
     /**
-     * Create data dir
+     *  Create dir
      * 
-     * @param string $strDir
-     * @return string|NULL
+     * @param  int $mode 
      */
-    public function createDataDir($strDir) {
-
-        //-------------------------------
-        if (isset($strDir)) {
-            if ($strDir) {
-                $strDir = str_replace("\\", "/", $strDir);
-                // Create a directory if it does not exist
-                if (!is_dir($strDir) && !mkdir($strDir)) {
-                    $this->app->abort(406, "Failed to create a directory '{$strDir}' ...");
-                }
-                $arrStr = str_split($strDir);
-                if ($arrStr[strlen($strDir) - 1] !== "/") {
-                    $strDir .= "/";
+    public function makeDir($path, $mode = 0777) {
+        $disk = '';
+        //------------------
+        $strPath = str_replace('\\', '/', $path);
+        if (!is_dir($strPath)) {
+            $trimPath = rtrim($path, "/");
+            $arrPath = explode(':/', $trimPath);
+            if (count($arrPath) == 2) {// Is disk eg. c:/dir
+                $disk = $arrPath[0];
+                $strPath = "{$disk}:";
+                $arrPath = explode('/', $arrPath[1]);
+            } else {
+                $arrPath = explode('/', $arrPath[0]);
+                $strPath = "";
+            }
+            foreach ($arrPath as $itemPath) {
+                $strPath .= "/{$itemPath}";
+                if (!is_dir($strPath) && !mkdir($strPath, $mode)) {
+                    $this->app->abort(406, "Failed to create a directory '{$strPath}' ...");
                 }
             }
         }
-        return $strDir;
     }
 
     /**
@@ -238,16 +240,30 @@ class System {
         //---------------------
         if (!$file) {
             $patch_dir = $config->getProjectPath("logs");
-            $file = "{$patch_dir}user.log";
+            if (!is_dir($patch_dir)) {
+                $this->makeDir($patch_dir);
+            }
+            $file = "{$patch_dir}/user.log";
         }
-        if($flags){
+        if ($flags) {
             return file_put_contents($file, $data, $flags | LOCK_EX);
-        }else{
+        } else {
             return file_put_contents($file, $data, LOCK_EX);
         }
-        
     }
-    
+
+    /**
+     * Save data
+     * 
+     * @param string $data 
+     * @param string $file 
+     * @return int | bool 
+     *  
+     */
+    public function saveData($data, $file) {
+        return file_put_contents($file, $data, LOCK_EX);
+    }
+
     /**
      * Get file info
      * The SplFileInfo class offers a 
