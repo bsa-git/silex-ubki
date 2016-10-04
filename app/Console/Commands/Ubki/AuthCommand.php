@@ -49,19 +49,22 @@ class AuthCommand extends \Console\Commands\BaseCommand {
             $this->init($input);
 
             if ($this->opts['environment'] == 'production') {
-                if ($this->app['debug']) {// test url
-                    $url = "https://secure.ubki.ua:4040/b2_api_xml/ubki/auth";
-                    $path = "/b2_api_xml/ubki/auth";
-                } else {// live url
-                    $url = "https://secure.ubki.ua:443/b2_api_xml/ubki/auth";
-                    $path = "/b2_api_xml/ubki/auth";
-                }
+                $url = "https://secure.ubki.ua:443/b2_api_xml/ubki/auth";
+                $path = "/b2_api_xml/ubki/auth";
                 // Set options
                 $options_ = array(
                     CURLOPT_PROXY => $parameters['proxy'] ? "{$parameters['proxy.host']}:{$parameters['proxy.port']}" : '',
                     CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
                 );
-            } else {
+            } elseif ($this->opts['environment'] == 'development') {
+                $url = "https://secure.ubki.ua:4040/b2_api_xml/ubki/auth";
+                $path = "/b2_api_xml/ubki/auth";
+                // Set options
+                $options_ = array(
+                    CURLOPT_PROXY => $parameters['proxy'] ? "{$parameters['proxy.host']}:{$parameters['proxy.port']}" : '',
+                    CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
+                );
+            } elseif ($this->opts['environment'] == 'test') {
                 // Get the test url
                 $url_test = $parameters['url_test'];
                 if ($this->app['debug']) {// for server debug
@@ -72,9 +75,11 @@ class AuthCommand extends \Console\Commands\BaseCommand {
                     $path = "/ubki/auth";
                 }
             }
-            
+
             // Set options
-            $options = array() + $options_;
+            $options = array(
+                CURLOPT_VERBOSE => $parameters['http.debug.info'],
+                    ) + $options_;
 
             // Get XML request
             $data = array();

@@ -615,10 +615,12 @@ class BaseCommand extends ConsoleCommand {
         $sysBox = $this->app['my']->get('system');
         $config = $this->app["my"]->get('config');
         //------------------------
-        // Save to log
+        // Save to error log
         $msg = $this->getLogMsg($msgs);
         $file = $config->getProjectPath("logs") . "/error.log";
         $sysBox->saveLog($msg, $file);
+        // Save to log
+        $this->saveLog($msgs);
     }
 
 }

@@ -51,19 +51,22 @@ class DataCommand extends \Console\Commands\BaseCommand {
             $this->init($input);
 
             if ($this->opts['environment'] == 'production') {
-                if ($this->app['debug']) {
-                    $url = "https://secure.ubki.ua:4040/upload/data/xml";
-                    $path = "/upload/data/xml";
-                } else {
-                    $url = "https://secure.ubki.ua/upload/data/xml";
-                    $path = "/upload/data/xml";
-                }
+                $url = "https://secure.ubki.ua/upload/data/xml";
+                $path = "/upload/data/xml";
                 // Set options
                 $options_ = array(
                     CURLOPT_PROXY => $parameters['proxy'] ? "{$parameters['proxy.host']}:{$parameters['proxy.port']}" : '',
                     CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
                 );
-            } else {
+            } elseif ($this->opts['environment'] == 'development') {
+                $url = "https://secure.ubki.ua:4040/upload/data/xml";
+                $path = "/upload/data/xml";
+                // Set options
+                $options_ = array(
+                    CURLOPT_PROXY => $parameters['proxy'] ? "{$parameters['proxy.host']}:{$parameters['proxy.port']}" : '',
+                    CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
+                );
+            } elseif ($this->opts['environment'] == 'test') {
                 // Get test url
                 $url_test = $parameters['url_test'];
                 if ($this->app['debug']) {
@@ -81,9 +84,10 @@ class DataCommand extends \Console\Commands\BaseCommand {
             $data = array();
             $data['sessid'] = $idSess;
             $xmlData = $models->load('Ubki', 'getReqSendData', $data);
-            
+
             // Set options
             $options = array(
+                CURLOPT_VERBOSE => $parameters['http.debug.info'],
                 CURLOPT_HTTPHEADER => Array(
                     "POST " . $path . " HTTP/1.0",
                     "Content-type: text/xml;charset=\"utf-8\"",
@@ -91,8 +95,8 @@ class DataCommand extends \Console\Commands\BaseCommand {
                     "Content­Encoding: gzip",
                     "Content-length: " . strlen($xmlData),
                 )
-            ) + $options_;
-            
+                    ) + $options_;
+
             // Create HttpBox object
             $http->setData($xmlData);
             // Send post request
@@ -120,8 +124,6 @@ class DataCommand extends \Console\Commands\BaseCommand {
 
             // Show results
             $output->writeln($this->showResults($results));
-
-
         } catch (\Exception $exc) {
             $this->showError($exc, $input, $output);
         }

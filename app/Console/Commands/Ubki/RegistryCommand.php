@@ -53,19 +53,22 @@ class RegistryCommand extends \Console\Commands\BaseCommand {
 
             // Get url
             if ($this->opts['environment'] == 'production') {
-                if ($this->app['debug']) {
-                    $url = "https://secure.ubki.ua:4040/upload/in/reestrs.php";
-                    $path = "/upload/in/reestrs.php";
-                } else {
-                    $url = "https://secure.ubki.ua/upload/in/reestrs.php";
-                    $path = "/upload/in/reestrs.php";
-                }
+                $url = "https://secure.ubki.ua/upload/in/reestrs.php";
+                $path = "/upload/in/reestrs.php";
                 // Set options
                 $options_ = array(
                     CURLOPT_PROXY => $parameters['proxy'] ? "{$parameters['proxy.host']}:{$parameters['proxy.port']}" : '',
                     CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
                 );
-            } else {
+            } elseif ($this->opts['environment'] == 'development') {
+                $url = "https://secure.ubki.ua:4040/upload/in/reestrs.php";
+                $path = "/upload/in/reestrs.php";
+                // Set options
+                $options_ = array(
+                    CURLOPT_PROXY => $parameters['proxy'] ? "{$parameters['proxy.host']}:{$parameters['proxy.port']}" : '',
+                    CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
+                );
+            } elseif ($this->opts['environment'] == 'test') {
                 // Get test url
                 $url_test = $parameters['url_test'];
                 if ($this->app['debug']) {
@@ -87,6 +90,7 @@ class RegistryCommand extends \Console\Commands\BaseCommand {
 
             // Set http options
             $options = array(
+                CURLOPT_VERBOSE => $parameters['http.debug.info'],
                 CURLOPT_HTTPHEADER => Array(
                     "POST " . $path . " HTTP/1.0",
                     "Content-type: text/xml;charset=\"utf-8\"",

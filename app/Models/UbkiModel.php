@@ -144,12 +144,10 @@ class UbkiModel extends BaseModel {
         $fileViewsRequest = $config->getProjectPath('views') . "/ubki/lib/info/reqGetInfo.xml";
         $fileUploadRequest = $config->getProjectPath('upload') . "/upload.xml";
         if ($opts['environment'] == 'production') {
-            if ($this->app['debug']) {
-                $file = is_file($fileUploadRequest) ? $fileUploadRequest : $fileViewsRequest;
-            } else {
-                $file = $fileUploadRequest;
-            }
-        } else {
+            $file = $fileUploadRequest;
+        } elseif ($opts['environment'] == 'development') {
+            $file = is_file($fileUploadRequest) ? $fileUploadRequest : $fileViewsRequest;
+        } elseif ($opts['environment'] == 'test') {
             $file = $fileViewsRequest;
         }
 
@@ -187,7 +185,7 @@ class UbkiModel extends BaseModel {
 
         // Get real XML
         $xml = $crXml->xml();
-        
+
         // Save XML to request.xml
         $file = $config->getProjectPath('upload') . "/request.xml";
         $sysBox->saveData($xml, $file);
@@ -220,12 +218,10 @@ class UbkiModel extends BaseModel {
         $fileViewsRequest = $config->getProjectPath('views') . "/ubki/lib/data/reqSendData.xml";
         $fileUploadRequest = $config->getProjectPath('upload') . "/upload.xml";
         if ($opts['environment'] == 'production') {
-            if ($this->app['debug']) {
-                $file = is_file($fileUploadRequest) ? $fileUploadRequest : $fileViewsRequest;
-            } else {
-                $file = $fileUploadRequest;
-            }
-        } else {
+            $file = $fileUploadRequest;
+        } elseif ($opts['environment'] == 'development') {
+            $file = is_file($fileUploadRequest) ? $fileUploadRequest : $fileViewsRequest;
+        } elseif ($opts['environment'] == 'test') {
             $file = $fileViewsRequest;
         }
 
@@ -257,7 +253,6 @@ class UbkiModel extends BaseModel {
         $file = $config->getProjectPath('upload') . "/request.xml";
         $sysBox->saveData($xml, $file);
 
-
         // Encode and pack string
         $gzdata = $strBox->set($xml)->base64Encode()->gzPack()->get();
 
@@ -288,18 +283,17 @@ class UbkiModel extends BaseModel {
         // Get XML for get registry
         $fileViewsRequest = $config->getProjectPath('views') . "/ubki/lib/registry/reqGetRegistry.xml";
         $fileUploadRequest = $config->getProjectPath('upload') . "/upload.xml";
+
         if ($opts['environment'] == 'production') {
-            if ($this->app['debug']) {
-                $file = is_file($fileUploadRequest) ? $fileUploadRequest : $fileViewsRequest;
+            if (isset($data['todo'])) {
+                $file = $fileViewsRequest;
             } else {
-                if (isset($data['todo'])) {
-                    $file = $fileViewsRequest;
-                } else {
-                    $file = $fileUploadRequest;
-                }
+                $file = $fileUploadRequest;
             }
-        } else {
-            $file = $config->getProjectPath('views') . "/ubki/lib/registry/reqGetRegistry.xml";
+        } elseif ($opts['environment'] == 'development') {
+            $file = is_file($fileUploadRequest) ? $fileUploadRequest : $fileViewsRequest;
+        } elseif ($opts['environment'] == 'test') {
+            $file = $fileViewsRequest;
         }
 
         if (!is_file($file)) {
@@ -571,7 +565,7 @@ class UbkiModel extends BaseModel {
         $sysBox = $this->app["my"]->get('system');
         //---------------------
         $path = $config->getProjectPath("download");
-        if(!is_dir($path)){
+        if (!is_dir($path)) {
             $sysBox->makeDir($path);
         }
         if ($isError) {
@@ -595,7 +589,7 @@ class UbkiModel extends BaseModel {
         $sysBox = $this->app["my"]->get('system');
         //---------------------
         $path = $config->getProjectPath("download");
-        if(!is_dir($path)){
+        if (!is_dir($path)) {
             $sysBox->makeDir($path);
         }
         if ($isError === NULL) {
@@ -625,7 +619,7 @@ class UbkiModel extends BaseModel {
         $sysBox = $this->app["my"]->get('system');
         //---------------------
         $path = $config->getProjectPath("download");
-        if(!is_dir($path)){
+        if (!is_dir($path)) {
             $sysBox->makeDir($path);
         }
         if ($isError) {
