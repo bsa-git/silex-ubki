@@ -57,7 +57,7 @@ class AuthCommand extends \Console\Commands\BaseCommand {
                     CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
                 );
             } elseif ($this->opts['environment'] == 'development') {
-                $url = "https://secure.ubki.ua:4040/b2_api_xml/ubki/auth";
+                $url = "https://secure.ubki.ua:4040/b2_api_xml/ubki/auth";// https://secure.ubki.ua:4040/b2_api_xml/ubki/auth
                 $path = "/b2_api_xml/ubki/auth";
                 // Set options
                 $options_ = array(

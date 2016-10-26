@@ -59,7 +59,7 @@ class DataCommand extends \Console\Commands\BaseCommand {
                     CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
                 );
             } elseif ($this->opts['environment'] == 'development') {
-                $url = "https://secure.ubki.ua:4040/upload/data/xml";
+                $url = "https://secure.ubki.ua:4040/upload/data/xml";// https://secure.ubki.ua:4040/upload/data/xml
                 $path = "/upload/data/xml";
                 // Set options
                 $options_ = array(

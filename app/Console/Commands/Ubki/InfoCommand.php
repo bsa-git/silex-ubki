@@ -59,7 +59,7 @@ class InfoCommand extends \Console\Commands\BaseCommand {
                     CURLOPT_PROXYUSERPWD => $parameters['proxy'] ? "{$parameters['proxy.user']}:{$parameters['proxy.pass']}" : '',
                 );
             } elseif ($this->opts['environment'] == 'development') {
-                $url = "https://secure.ubki.ua:4040/b2_api_xml/ubki/xml";
+                $url = "https://secure.ubki.ua:4040/b2_api_xml/ubki/xml";// https://secure.ubki.ua:4040/b2_api_xml/ubki/xml
                 $path = "/b2_api_xml/ubki/xml";
                 // Set options
                 $options_ = array(
